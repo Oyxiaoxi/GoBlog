@@ -35,18 +35,7 @@ func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		// 解析错误，这里应该有错误处理
-		fmt.Fprint(w, "请提供正确的数据！")
-		return
-	}
-
-	title := r.PostForm.Get("title")
-
-	fmt.Fprintf(w, "POST PostForm: %v <br>", r.PostForm)
-	fmt.Fprintf(w, "POST Form: %v <br>", r.Form)
-	fmt.Fprintf(w, "title 的值为: %v", title)
+	fmt.Fprint(w, "创建新的文章")
 }
 
 func articlesCreateHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +56,22 @@ func articlesCreateHandler(w http.ResponseWriter, r *http.Request) {
 	`
 	storeURL, _ := router.Get("articles.store").URL()
 	fmt.Fprintf(w, html, storeURL)
+}
+
+func aritlcesStoreHandler(w http.ResponseWriter, r *http.Request) {
+
+	err := r.ParseForm()
+	if err != nil {
+		// 解析错误，这里应该有错误处理
+		fmt.Fprint(w, "请提供正确的数据！")
+		return
+	}
+
+	title := r.PostForm.Get("title")
+
+	fmt.Fprintf(w, "POST PostForm: %v <br>", r.PostForm)
+	fmt.Fprintf(w, "POST Form: %v <br>", r.Form)
+	fmt.Fprintf(w, "title 的值为: %v", title)
 }
 
 func forceHTMLMiddleware(next http.Handler) http.Handler {
@@ -97,7 +102,8 @@ func main() {
 
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesShowHandler).Methods("GET").Name("articles.show")
 	router.HandleFunc("/articles", articlesIndexHandler).Methods("GET").Name("articles.index")
-	router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
+	// router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
+	router.HandleFunc("/articles", aritlcesStoreHandler).Methods("POST").Name("articles.store")
 	router.HandleFunc("/articles/create", articlesCreateHandler).Methods("GET").Name("articles.create")
 
 	// 自定义 404 页面
