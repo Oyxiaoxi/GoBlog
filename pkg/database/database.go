@@ -1,8 +1,8 @@
 package database
 
 import (
-	"GoBlog/pkg/logger"
 	"database/sql"
+	"goblog/pkg/logger"
 	"time"
 
 	"github.com/go-sql-driver/mysql"

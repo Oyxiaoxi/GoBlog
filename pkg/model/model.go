@@ -1,11 +1,10 @@
 package model
 
 import (
-	"Goblog/pkg/logger"
+	"goblog/pkg/logger"
 
 	"gorm.io/gorm"
 
-	// GORM 的 MSYQL 数据库驱动导入
 	"gorm.io/driver/mysql"
 )
 

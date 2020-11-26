@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"GoBlog/app/http/controllers"
+	"goblog/app/http/controllers"
 
 	"github.com/gorilla/mux"
 )

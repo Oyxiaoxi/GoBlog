@@ -10,9 +10,9 @@ import (
 	"text/template"
 	"unicode/utf8"
 
-	"GoBlog/bootstrap"
-	"GoBlog/pkg/database"
-	"GoBlog/pkg/logger"
+	"goblog/bootstrap"
+	"goblog/pkg/database"
+	"goblog/pkg/logger"
 
 	"github.com/gorilla/mux"
 )

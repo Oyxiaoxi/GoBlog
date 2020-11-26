@@ -3,7 +3,7 @@ package bootstrap
 import (
 	"time"
 
-	"GoBlog/pkg/model"
+	"goblog/pkg/model"
 )
 
 // SetupDB 初始化数据库和 ORM
