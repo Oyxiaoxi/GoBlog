@@ -8,19 +8,19 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
-	"time"
 	"unicode/utf8"
 
 	"GoBlog/pkg/logger"
 	"GoBlog/pkg/route"
 	"GoBlog/pkg/types"
 
-	"github.com/go-sql-driver/mysql"
+	"GoBlog/pkg/database"
+
 	"github.com/gorilla/mux"
 )
 
 var router *mux.Router
-var db *sql.DB
+var DB *sql.DB
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<h1>Hello, 欢迎来到 goblog！</h1>")
@@ -87,7 +87,7 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request) {
 
 func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
 	// 1. 执行查询语句，返回一个结果集
-	rows, err := db.Query("SELECT * from articles")
+	rows, err := DB.Query("SELECT * from articles")
 	logger.LogError(err)
 	defer rows.Close()
 
@@ -216,45 +216,6 @@ func removeTrailingSlash(next http.Handler) http.Handler {
 	})
 }
 
-func initDB() {
-
-	var err error
-	config := mysql.Config{
-		User:                 "homestead",
-		Passwd:               "secret",
-		Addr:                 "127.0.0.1:3306",
-		Net:                  "tcp",
-		DBName:               "goblog",
-		AllowNativePasswords: true,
-	}
-
-	// 准备数据库连接池
-	db, err = sql.Open("mysql", config.FormatDSN())
-	logger.LogError(err)
-
-	// 设置最大连接数
-	db.SetMaxOpenConns(25)
-	// 设置最大空闲连接数
-	db.SetMaxIdleConns(25)
-	// 设置每个链接的过期时间
-	db.SetConnMaxLifetime(5 * time.Minute)
-
-	// 尝试连接，失败会报错
-	err = db.Ping()
-	logger.LogError(err)
-}
-
-func createTables() {
-	createArticlesSQL := `CREATE TABLE IF NOT EXISTS articles(
-    id bigint(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    title varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-    body longtext COLLATE utf8mb4_unicode_ci
-); `
-
-	_, err := db.Exec(createArticlesSQL)
-	logger.LogError(err)
-}
-
 func saveArticleToDB(title string, body string) (int64, error) {
 
 	// 变量初始化
@@ -266,7 +227,7 @@ func saveArticleToDB(title string, body string) (int64, error) {
 	)
 
 	// 1. 获取一个 prepare 声明语句
-	stmt, err = db.Prepare("INSERT INTO articles (title, body) VALUES(?,?)")
+	stmt, err = DB.Prepare("INSERT INTO articles (title, body) VALUES(?,?)")
 	// 例行的错误检测
 	if err != nil {
 		return 0, err
@@ -292,7 +253,7 @@ func saveArticleToDB(title string, body string) (int64, error) {
 func getArticleByID(id string) (Article, error) {
 	article := Article{}
 	query := "SELECT * FROM articles WHERE id = ?"
-	err := db.QueryRow(query, id).Scan(&article.ID, &article.Title, &article.Body)
+	err := DB.QueryRow(query, id).Scan(&article.ID, &article.Title, &article.Body)
 	return article, err
 }
 
@@ -362,7 +323,7 @@ func articlesUpdateHandler(w http.ResponseWriter, r *http.Request) {
 		if len(errors) == 0 {
 			// 4.2 表单验证通过，更新数据
 			query := "UPDATE articles SET title = ?, body = ? WHERE id = ?"
-			rs, err := db.Exec(query, title, body, id)
+			rs, err := DB.Exec(query, title, body, id)
 
 			if err != nil {
 				logger.LogError(err)
@@ -396,7 +357,7 @@ func articlesUpdateHandler(w http.ResponseWriter, r *http.Request) {
 
 // Delete 方法用以从数据库中删除单条记录
 func (a Article) Delete() (rowsAffected int64, err error) {
-	rs, err := db.Exec("DELETE FROM articles WHERE id = " + strconv.FormatInt(a.ID, 10))
+	rs, err := DB.Exec("DELETE FROM articles WHERE id = " + strconv.FormatInt(a.ID, 10))
 
 	if err != nil {
 		return 0, err
@@ -456,8 +417,9 @@ func articlesDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	initDB()
-	createTables()
+
+	database.Initialize()
+	DB = database.DB
 
 	route.Initialize()
 	router = route.Router
