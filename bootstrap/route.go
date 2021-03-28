@@ -9,10 +9,10 @@ import (
 
 // SetupRoute 路由初始化
 func SetupRoute() *mux.Router {
-	router := mux.NewRouter()
-	routes.RegisterWebRoutes(router)
+    router := mux.NewRouter()
+    routes.RegisterWebRoutes(router)
 
-	route.SetRoute(router)
+    route.SetRoute(router)
 
-	return router
+    return router
 }
