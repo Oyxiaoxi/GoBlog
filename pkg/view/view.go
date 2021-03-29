@@ -3,8 +3,8 @@ package view
 import (
 	"goblog/pkg/logger"
 	"goblog/pkg/route"
-	
 	"html/template"
+
 	"io"
 	"path/filepath"
 	"strings"

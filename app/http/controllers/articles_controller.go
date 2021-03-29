@@ -49,7 +49,7 @@ func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 
 	// 1. 获取结果集
 	articles, err := article.GetAll()
-	
+
 	if err != nil {
 		// 数据库错误
 		logger.LogError(err)
